@@ -1,11 +1,4 @@
-const { 
-    Client, 
-    GatewayIntentBits, 
-    EmbedBuilder, 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    ButtonStyle 
-} = require("discord.js");
+const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js");
 
 const TOKEN = process.env.BOT_TOKEN;
 const CHANNEL_ID = "1448232536177119272";
@@ -19,7 +12,7 @@ const client = new Client({
 
 let messageToEdit = null;
 
-client.once("ready", async () => {
+client.once("clientReady", async () => { // Updated for v15+
     console.log(`Logged in as ${client.user.tag}`);
 
     const channel = await client.channels.fetch(CHANNEL_ID);
@@ -28,20 +21,13 @@ client.once("ready", async () => {
     const embed = new EmbedBuilder()
         .setTitle("Click to Join Server")
         .setURL(`https://hvh.wtf/servers/${SERVER_ID}`)
+        .setDescription(`[Connect via Steam](${STEAM_CONNECT})`)
         .setImage(`https://hvh.wtf/api/servers/${SERVER_ID}/image?t=${Date.now()}`)
         .setColor(0x00AE86)
         .setTimestamp();
 
-    // Create the button
-    const button = new ButtonBuilder()
-        .setLabel("Connect via Steam")
-        .setStyle(ButtonStyle.Link) // Link button
-        .setURL(STEAM_CONNECT);
-
-    const row = new ActionRowBuilder().addComponents(button);
-
     // Send the message if it doesn't exist yet
-    messageToEdit = await channel.send({ embeds: [embed], components: [row] });
+    messageToEdit = await channel.send({ embeds: [embed] });
     console.log("Message created:", messageToEdit.id);
 
     // Update loop
@@ -49,9 +35,9 @@ client.once("ready", async () => {
         try {
             const updatedEmbed = EmbedBuilder.from(embed)
                 .setImage(`https://hvh.wtf/api/servers/${SERVER_ID}/image?t=${Date.now()}`)
-                .setTimestamp(); // optional: updates timestamp to show freshness
+                .setTimestamp();
 
-            await messageToEdit.edit({ embeds: [updatedEmbed], components: [row] });
+            await messageToEdit.edit({ embeds: [updatedEmbed] });
             console.log("Updated:", new Date().toISOString());
 
         } catch (err) {
